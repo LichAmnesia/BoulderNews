@@ -1,8 +1,8 @@
 <!-- /**
  * @Author: Lich_Amnesia
  * @Date:   2016-04-11 20:22:39
- * @Last Modified by:   Lich_Amnesia
- * @Last Modified time: 2016-04-12 00:16:37
+ * @Last Modified by:   Alwa
+ * @Last Modified time: 2016-04-12 00:39:50
  * @Thanks comzyh !
  * @Should change the fold permission to 777. Otherwise will return warnings.
  */ -->
@@ -30,6 +30,7 @@
               [qq] VARCHAR(50),
               [departure_city] VARCHAR(50),
               [arrival_city] VARCHAR(50),
+              [introduction] VARCHAR(500),
               [register_time] DATETIME
               );";
         $ret = $db->exec($sql);
@@ -48,22 +49,23 @@
         $qq=$_POST['qq'];
         $departure_city=$_POST['departure_city'];
         $arrival_city=$_POST['arrival_city'];
+        $introduction=$_POST['introduction'];
         $register_time=date('Y-m-d H:i:s');
 
         if ($student_id == "" || $name == "" || $gender == "" || $college == "" || $email=="" || $departure_city=="" || $arrival_city=="" || $degree == "" || $qq == "")
                 die ('Please fill in all required fields');
 
         $student_id=MyDB::escapeString($_POST['student_id']);
-        $sql="INSERT OR REPLACE INTO statistics (student_id, name, gender, degree, college, telephone, email, qq, departure_city, arrival_city, register_time) VALUES ('$student_id', '$name', '$gender', '$degree', '$college', '$telephone', '$email', '$qq','$departure_city', '$arrival_city', '$register_time')";
+        $sql="INSERT OR REPLACE INTO statistics (student_id, name, gender, degree, college, telephone, email, qq, departure_city, arrival_city, introduction, register_time) VALUES ('$student_id', '$name', '$gender', '$degree', '$college', '$telephone', '$email', '$qq','$departure_city', '$arrival_city', '$introduction','$register_time')";
         $db->exec($sql);
     }
     else if (!empty($_GET['password']) && $_GET['password'] =='9078563412'){
         $db = new MyDB();
-        $sql = "SELECT student_id, name, gender, degree, college, telephone, email, qq, departure_city, arrival_city, register_time FROM statistics order by register_time;";
+        $sql = "SELECT student_id, name, gender, degree, college, telephone, email, qq, departure_city, arrival_city, introduction, register_time FROM statistics order by register_time;";
         $ret = $db->query($sql);
         $ret_array = [];
         while($row = $ret->fetchArray(SQLITE3_ASSOC) ){
-        $ret_array[] = [$row['student_id'],$row['name'],$row['gender'],$row['degree'],$row['college'],$row['telephone'],$row['email'],$row['qq'],$row['departure_city'],$row['arrival_city'],$row['register_time']];
+        $ret_array[] = [$row['student_id'],$row['name'],$row['gender'],$row['degree'],$row['college'],$row['telephone'],$row['email'],$row['qq'],$row['departure_city'],$row['arrival_city'],$row['introduction'],$row['register_time']];
         }
         echo (json_encode($ret_array));
     }
@@ -110,7 +112,7 @@
 
     <div class="container">
         <div class="col-md-6">
-            <h1 class="text-center">2016年Cu Boulder新生统计</h1>
+            <h1 class="text-center">2016年 Cu Boulder 新生统计</h1>
             <div id="sponsor">
                 <iframe class="center-block" frameborder="no" border="0" marginwidth="0" marginheight="0" width=298 height=52 src="http://music.163.com/outchain/player?type=2&id=16334771&auto=0&height=32"></iframe>
             </div>
@@ -119,6 +121,7 @@
                 <p>本统计为了方便大家能够找到飞友，学友和舍友。
                 </p>
                 <p>请如实填写右方所有信息，统计完成后会公开你的姓名、性别、学位、起飞城市和目的城市和QQ。</p>
+                <p>注意Student ID是在学校录取邮件的9位数字，用来激活MyBoulder的(不是PIN)，这里仅为了去重和方便更新个人信息。</p>
                 <p>如有遗漏信息敬请谅解。</p>
                 <p>统计截止日期： 2016 年 4 月 25 日 晚 24 时</p>
                 <p>如有问题请联系QQ:459577895</p>
@@ -191,6 +194,10 @@
                     <div class="form-group">
                         <label>到达城市(比如:丹佛)</label>
                         <input type="text" name="arrival_city" class="form-control" maxlength="18">
+                    </div>
+                    <div class="form-group">
+                        <label>个人介绍(表明一下个人倾向喜恶,方便找伴)</label>
+                        <input type="text" name="introduction" class="form-control" maxlength="18" value="写上一句话来介绍自己吧">
                     </div>
                     <button class="btn btn-primary center-block" type="submit" onclick="alert('确认提交？')">提交</button>
                 </form>
