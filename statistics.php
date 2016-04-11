@@ -1,12 +1,14 @@
 <!-- /**
  * @Author: Lich_Amnesia
  * @Date:   2016-04-11 20:22:39
- * @Last Modified by:   Alwa
- * @Last Modified time: 2016-04-11 23:58:19
+ * @Last Modified by:   Lich_Amnesia
+ * @Last Modified time: 2016-04-12 00:16:37
  * @Thanks comzyh !
+ * @Should change the fold permission to 777. Otherwise will return warnings.
  */ -->
 <?php
     ini_set('display_errors', 1);
+    date_default_timezone_set('Asia/Shanghai');
     error_reporting(~0);
     class MyDB extends SQLite3
     {
@@ -129,7 +131,7 @@
                 <h3 class="text-center">统计信息</h3>
                 <form class="center-block" id="form_register" method="post" action="" role="form" >
                     <div class="form-group">
-                        <label>学号(Student ID,9位数字)</label>
+                        <label>学号(Student ID,9位数字,请务必准确)</label>
                         <input type="text" name="student_id" class="form-control" maxlength="35">
                     </div>
                     <div class="form-group">
