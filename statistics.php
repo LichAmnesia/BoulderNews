@@ -2,7 +2,7 @@
  * @Author: Lich_Amnesia
  * @Date:   2016-04-11 20:22:39
  * @Last Modified by:   Alwa
- * @Last Modified time: 2016-04-12 00:39:50
+ * @Last Modified time: 2016-04-12 01:18:55
  * @Thanks comzyh !
  * @Should change the fold permission to 777. Otherwise will return warnings.
  */ -->
@@ -30,6 +30,7 @@
               [qq] VARCHAR(50),
               [departure_city] VARCHAR(50),
               [arrival_city] VARCHAR(50),
+              [living] VARCHAR(50),
               [introduction] VARCHAR(500),
               [register_time] DATETIME
               );";
@@ -49,23 +50,24 @@
         $qq=$_POST['qq'];
         $departure_city=$_POST['departure_city'];
         $arrival_city=$_POST['arrival_city'];
+        $living=$_POST['living'];
         $introduction=$_POST['introduction'];
         $register_time=date('Y-m-d H:i:s');
 
-        if ($student_id == "" || $name == "" || $gender == "" || $college == "" || $email=="" || $departure_city=="" || $arrival_city=="" || $degree == "" || $qq == "")
+        if ($student_id == "" || $name == "" || $gender == "" || $college == "" || $email=="" || $departure_city=="" || $arrival_city=="" || $degree == "" || $qq == "" || $living == "")
                 die ('Please fill in all required fields');
 
         $student_id=MyDB::escapeString($_POST['student_id']);
-        $sql="INSERT OR REPLACE INTO statistics (student_id, name, gender, degree, college, telephone, email, qq, departure_city, arrival_city, introduction, register_time) VALUES ('$student_id', '$name', '$gender', '$degree', '$college', '$telephone', '$email', '$qq','$departure_city', '$arrival_city', '$introduction','$register_time')";
+        $sql="INSERT OR REPLACE INTO statistics (student_id, name, gender, degree, college, telephone, email, qq, departure_city, arrival_city, living, introduction, register_time) VALUES ('$student_id', '$name', '$gender', '$degree', '$college', '$telephone', '$email', '$qq','$departure_city', '$arrival_city', '$living','$introduction','$register_time')";
         $db->exec($sql);
     }
     else if (!empty($_GET['password']) && $_GET['password'] =='9078563412'){
         $db = new MyDB();
-        $sql = "SELECT student_id, name, gender, degree, college, telephone, email, qq, departure_city, arrival_city, introduction, register_time FROM statistics order by register_time;";
+        $sql = "SELECT student_id, name, gender, degree, college, telephone, email, qq, departure_city, arrival_city, living, introduction, register_time FROM statistics order by register_time;";
         $ret = $db->query($sql);
         $ret_array = [];
         while($row = $ret->fetchArray(SQLITE3_ASSOC) ){
-        $ret_array[] = [$row['student_id'],$row['name'],$row['gender'],$row['degree'],$row['college'],$row['telephone'],$row['email'],$row['qq'],$row['departure_city'],$row['arrival_city'],$row['introduction'],$row['register_time']];
+        $ret_array[] = [$row['student_id'],$row['name'],$row['gender'],$row['degree'],$row['college'],$row['telephone'],$row['email'],$row['qq'],$row['departure_city'],$row['arrival_city'],$row['living'],$row['introduction'],$row['register_time']];
         }
         echo (json_encode($ret_array));
     }
@@ -194,6 +196,15 @@
                     <div class="form-group">
                         <label>到达城市(比如:丹佛)</label>
                         <input type="text" name="arrival_city" class="form-control" maxlength="18">
+                    </div>
+                    <div class="form-group">
+                        <label>住宿信息</label>
+                        <select type="text" name="living" class="selectpicker form-control" maxlength="50">
+                            <option value=""></option>
+                            <option value="校内住宿">校内住宿</option>
+                            <option value="校外租房">校外租房</option>
+                            <option value="不知道">不知道</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>个人介绍(表明一下个人倾向喜恶,方便找伴)</label>
