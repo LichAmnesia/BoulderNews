@@ -2,7 +2,7 @@
 # @Author: Lich_Amnesia  
 # @Email: alwaysxiaop@gmail.com
 # @Date:   2016-04-14 22:07:17
-# @Last Modified time: 2016-04-14 22:08:01
+# @Last Modified time: 2016-04-14 23:24:57
 # @FileName: weatherspider.py
 
 import sqlite3
@@ -11,11 +11,12 @@ import re
 import datetime
 import time
 import getopt, sys
-class HDU_fetcher(object):
-    """docstring for HDU_fetcher"""
+
+class weatherFetcher(object):
+    """docstring for weatherFetcher"""
     def __init__(self, arg=None,filename=None,quiet=False):
         super
-        (HDU_fetcher, self).__init__()
+        (weatherFetcher, self).__init__()
         self.arg = arg
         #Sqlite
         self.con = sqlite3.connect(filename)
@@ -32,6 +33,7 @@ class HDU_fetcher(object):
         self.s = requests.Session()
         self.fileds = ['RunID','User','Problem','Result','Memory','Time','Language','Code_Length','Submit_Time']
         self.quiet=quiet
+
     def create_table(self):
         cu = self.con.cursor()
         cu.execute('''CREATE TABLE [HDU_Status] (
@@ -47,12 +49,12 @@ class HDU_fetcher(object):
         ''')
         cu.execute('CREATE INDEX [RunID] ON [HDU_Status] ([RunID] ASC);')
         cu.close()
-    def fetch_html(self,start_at=16668947):
-        # http://acm.hdu.edu.cn/status.php?first=16668947&user=&pid=&lang=&status=#status
-        url = "http://acm.hdu.edu.cn/status.php?first="+ str(start_at) + "&user=&pid=&lang=&status=#status"
+
+    def fetch_html(self):
+        url = "https://weather.com/weather/today/l/Boulder+CO+USCO0038:1:US"
         while True:
             success = True
-            print "Fetch RunID %9d" % start_at
+            print("{0}".format(time.strftime( ISOTIMEFORMAT, time.localtime())))
             try:
                 resp = self.s.get(url,timeout=5)
             except Exception, e:
@@ -71,7 +73,8 @@ class HDU_fetcher(object):
             if  success :
                 break
         return resp
-    def fetch(self,start_at=16668947):
+        
+    def fetch(self):
 
         resp = self.fetch_html(start_at)
         resp.encoding = "GB18030"
@@ -135,25 +138,25 @@ class HDU_fetcher(object):
             if not only_print:
                 for i in xrange(A+20,B+20,20):
                     self.fetch(i)
-    def main(self,begin,end):
-        if begin == None:
-            cu = self.con.cursor()
-            cu.execute("select RunID from HDU_Status order by RunID DESC LIMIT 1")
-            begin = cu.fetchone()
-            if begin:
-                begin = int(begin[0])
-            else:
-                begin = 15
-        if end == None:
-            end = begin + 5000000
-        if end < begin:
-            begin,end = end,begin
-        for i in xrange(begin,end,15):
-            self.fetch(i)
+    def main(self):
+        # if begin == None:
+        #     cu = self.con.cursor()
+        #     cu.execute("select RunID from HDU_Status order by RunID DESC LIMIT 1")
+        #     begin = cu.fetchone()
+        #     if begin:
+        #         begin = int(begin[0])
+        #     else:
+        #         begin = 15
+        # if end == None:
+        #     end = begin + 5000000
+        # if end < begin:
+        #     begin,end = end,begin
+        # for i in xrange(begin,end,15):
+        self.fetch()
             # time.sleep(0.1)
 
 if __name__ == '__main__':
-    filename = "D:\Work\Python\HDU_status\HDU_status5M.db"
+    filename = "weather.db"
     begin = None
     end = None
     detla = None
@@ -180,9 +183,9 @@ if __name__ == '__main__':
     except getopt.GetoptError:
         print "Usage:[-f filename],[-b begin_runid],[-e end_runid],[-d missing_detla]"
         # print help information and exit:
-    fetcher = HDU_fetcher(filename=filename,quiet=quiet)
+    fetcher = weatherFetcher(filename=filename,quiet=quiet)
     if detla == None:
-        fetcher.main(begin=begin,end=end)
+        fetcher.main()
     else:
         fetcher.make_up(detla=detla,only_print=only_print)
 
