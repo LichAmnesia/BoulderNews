@@ -2,7 +2,7 @@
 # @Author: Lich_Amnesia  
 # @Email: alwaysxiaop@gmail.com
 # @Date:   2016-04-14 22:07:17
-# @Last Modified time: 2016-04-14 23:24:57
+# @Last Modified time: 2016-04-15 00:35:14
 # @FileName: weatherspider.py
 
 import sqlite3
@@ -28,33 +28,33 @@ class weatherFetcher(object):
             else:
                 raise e
         else:
-            print "create table HDU_status successfully"
+            print "create table WeatherBoulder successfully"
         #requests
         self.s = requests.Session()
-        self.fileds = ['RunID','User','Problem','Result','Memory','Time','Language','Code_Length','Submit_Time']
+        self.fileds = ['RunID','TemperatureH','TemperatureL','Description','Precip','Wind','Humidity','Time']
         self.quiet=quiet
 
+    # ok
     def create_table(self):
         cu = self.con.cursor()
-        cu.execute('''CREATE TABLE [HDU_Status] (
+        cu.execute('''CREATE TABLE [WeatherBoulder] (
               [RunID] integer NOT NULL ON CONFLICT REPLACE PRIMARY KEY,
-              [User] varchar(20),
-              [Problem] integer,
-              [Result] varchar(40),
-              [Memory] varchar(10),
-              [Time] varchar(10),
-              [Language] varchar(10),
-              [Code_Length] varchar(10),
-              [Submit_Time] datetime);
+              [TemperatureH] integer,
+              [TemperatureL] integer,
+              [Description] varchar(10),
+              [Precip] varchar(10),
+              [Wind] varchar(40),
+              [Humidity] varchar(40),
+              [Time] datetime);
         ''')
-        cu.execute('CREATE INDEX [RunID] ON [HDU_Status] ([RunID] ASC);')
+        cu.execute('CREATE INDEX [RunID] ON [WeatherBoulder] ([RunID] ASC);')
         cu.close()
 
     def fetch_html(self):
         url = "https://weather.com/weather/today/l/Boulder+CO+USCO0038:1:US"
         while True:
             success = True
-            print("{0}".format(time.strftime( ISOTIMEFORMAT, time.localtime())))
+            print("fetch ok {0}".format(time.strftime( ISOTIMEFORMAT, time.localtime())))
             try:
                 resp = self.s.get(url,timeout=5)
             except Exception, e:
@@ -73,10 +73,10 @@ class weatherFetcher(object):
             if  success :
                 break
         return resp
-        
+
     def fetch(self):
 
-        resp = self.fetch_html(start_at)
+        resp = self.fetch_html()
         resp.encoding = "GB18030"
         patternstr = r'''
         <tr\s(bgcolor=\#D7EBFF\s)?align=center\s>
