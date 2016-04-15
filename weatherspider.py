@@ -2,7 +2,7 @@
 # @Author: Lich_Amnesia  
 # @Email: alwaysxiaop@gmail.com
 # @Date:   2016-04-14 22:07:17
-# @Last Modified time: 2016-04-15 00:35:14
+# @Last Modified time: 2016-04-16 01:39:01
 # @FileName: weatherspider.py
 
 import sqlite3
@@ -51,10 +51,10 @@ class weatherFetcher(object):
         cu.close()
 
     def fetch_html(self):
-        url = "https://weather.com/weather/today/l/Boulder+CO+USCO0038:1:US"
+        url = "https://weather.com/weather/5day/l/USCO0038:1:US"
         while True:
             success = True
-            print("fetch ok {0}".format(time.strftime( ISOTIMEFORMAT, time.localtime())))
+            print("fetch ok {0}".format(time.localtime()))
             try:
                 resp = self.s.get(url,timeout=5)
             except Exception, e:
@@ -77,7 +77,11 @@ class weatherFetcher(object):
     def fetch(self):
 
         resp = self.fetch_html()
-        resp.encoding = "GB18030"
+        print resp.encoding,type(resp)
+        resp.encoding = "utf-8"
+        f = open('t','wb')
+        f.write(resp.content)
+        f.close()
         patternstr = r'''
         <tr\s(bgcolor=\#D7EBFF\s)?align=center\s>
           <td.*?>(?P<RunID>\d+)</td>
@@ -96,14 +100,13 @@ class weatherFetcher(object):
         for m in pattern.finditer(resp.text):
             line = {
                 'RunID':m.group('RunID'),
-                'User':m.group('User'),
-                'Problem':m.group('Problem'),
-                'Result':m.group('Result'),
-                'Memory':m.group('Memory'),
+                'TemperatureH':m.group('TemperatureH'),
+                'TemperatureL':m.group('TemperatureL'),
+                'Description':m.group('Description'),
+                'Precip':m.group('Precip'),
+                'Wind':m.group('Wind'),
+                'Humidity':m.group('Humidity'),
                 'Time':m.group('Time'),
-                'Language':m.group('Language'),
-                'Code_Length':m.group('Code_Length'),
-                'Submit_Time':m.group('Submit_Time'),
                 }
             results.append(line)
             # print line
@@ -113,6 +116,7 @@ class weatherFetcher(object):
             print resp.text
         self.insert(results)
         return results
+
     def insert(self,status):
         cu = self.con.cursor()
         status_array = []
@@ -126,6 +130,7 @@ class weatherFetcher(object):
         # print status_array
         cu.executemany('INSERT OR REPLACE INTO HDU_Status Values(?,?,?,?,?,?,?,?,?)',status_array)
         self.con.commit()
+        
     def make_up(self,detla,only_print=False,verify=False):
         cu = self.con.cursor()
         cu.execute("SELECT S1.RunID as A, S2.RunID as B from HDU_Status as S1,HDU_Status as S2 where B - A > ? and B = (select min(RunID) from HDU_Status where RunID > A) ORDER BY S1.RunID",[detla])
