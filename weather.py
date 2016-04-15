@@ -2,7 +2,7 @@
 # @Author: Lich_Amnesia  
 # @Email: alwaysxiaop@gmail.com
 # @Date:   2016-04-15 19:02:42
-# @Last Modified time: 2016-04-16 01:45:45
+# @Last Modified time: 2016-04-16 02:04:13
 # @FileName: weather.py
 
 import urllib2, urllib, json
@@ -33,14 +33,14 @@ class weatherFetcher(object):
         #requests
         self.s = requests.Session()
         self.fileds = ['RunID','Temperature','Description','Wind','Humidity','Time']
-        self.quiet=quiet
+
 
     def create_table(self):
         cu = self.con.cursor()
         cu.execute('''CREATE TABLE [WeatherBoulder] (
               [RunID] integer NOT NULL ON CONFLICT REPLACE PRIMARY KEY,
               [TemperatureL] integer,
-              [Description] varchar(10),
+              [Description] varchar(40),
               [Wind] integer,
               [Humidity] integer,
               [Time] varchar(40));
@@ -69,7 +69,7 @@ class weatherFetcher(object):
 
 
     def cacl(self,ftemp):
-        return round((float(ftemp) - 32.0) / 1.8)
+        return int(round((float(ftemp) - 32.0) / 1.8))
 
     def fetch(self):
         baseurl = "https://query.yahooapis.com/v1/public/yql?"
@@ -79,98 +79,68 @@ class weatherFetcher(object):
         resp = self.fetch_html(yql_url)
         # result = urllib2.urlopen(yql_url).read()
         data = json.loads(resp.content)
-
+        # data = data.encode('utf-8')
         line = {
-            'RunID':data['query']['results']['channel']['item']['condition']['date'],
+            'RunID':self.getRunID(),
             'Temperature':self.cacl(data['query']['results']['channel']['item']['condition']['temp']),
-            'Description':data['query']['results']['channel']['item']['condition']['text'],
+            'Description':data['query']['results']['channel']['item']['condition']['text'].encode('utf-8'),
             'Wind':int(data['query']['results']['channel']['wind']['speed']),
             'Humidity':int(data['query']['results']['channel']['atmosphere']['humidity']),
-            'Time':data['query']['results']['channel']['item']['condition']['date'],
+            'Time':data['query']['results']['channel']['item']['condition']['date'].encode('utf-8'),
         }
-        print line        
-        print "got %d status" % len(line)
+        # print "got %d status" % len(line)
         
-        self.getRunID()
-        # self.insert(line)
+        print('RunID = {0}'.format(line['RunID']))
+        self.insert(line)
         return line
 
     def getRunID(self):
         RunID = 1
         cu = self.con.cursor()
         cu.execute("SELECT RunID from WeatherBoulder ORDER by RunID DESC LIMIT 1")
-        bk = cu.fetchall()
+        bk = cu.fetchone()
         if len(bk) == 0:
             RunID = 1
         else:
             RunID = bk[0] + 1
-        print RunID
         return RunID
 
     def insert(self,status):
         cu = self.con.cursor()
         status_array = []
-        
+        s = []
         for key in self.fileds:
-            status_array.append(status[key])
-        print status_array
-        cu.executemany('INSERT OR REPLACE INTO HDU_Status Values(?,?,?,?,?,?,?,?,?)',status_array)
+            s.append(status[key])
+        status_array.append(s)
+        cu.executemany('INSERT OR REPLACE INTO WeatherBoulder Values(?,?,?,?,?,?)',status_array)
         self.con.commit()
 
 
 
-def fetch():
-    baseurl = "https://query.yahooapis.com/v1/public/yql?"
-    yql_query = "select * from weather.forecast where woeid=2367231"
-    yql_url = baseurl + urllib.urlencode({'q':yql_query}) + "&format=json"
-    result = urllib2.urlopen(yql_url).read()
-    data = json.loads(result)
-    # print data['query']['results']
-    line = {
-        'RunID':data['query']['results']['channel']['item']['condition']['date'],
-        'Temperature':cacl(data['query']['results']['channel']['item']['condition']['temp']),
-        'Description':data['query']['results']['channel']['item']['condition']['text'],
-        'Wind':int(data['query']['results']['channel']['wind']['speed']),
-        'Humidity':int(data['query']['results']['channel']['atmosphere']['humidity']),
-        'Time':data['query']['results']['channel']['item']['condition']['date'],
-        }
-    print line
-    # print data['query']['results']['channel']['item']['condition']['date']
-    # print data['query']['results']['channel']['item']['condition']['text']
-    # print data['query']['results']['channel']['item']['condition']['temp']
-    # print data['query']['results']['channel']['wind']['speed']
-    # print data['query']['results']['channel']['atmosphere']['humidity']
+    def print_ts(self, message):  
+        print "[%s] %s"%(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), message)  
+
+    def run(self, interval, command):  
+        self.print_ts("-"*100)  
+        self.print_ts("Command %s"%command)  
+        self.print_ts("Starting every %s seconds."%interval)  
+        self.print_ts("-"*100)  
+        while True:  
+            try:  
+                # sleep for the remaining seconds of interval  
+                time_remaining = interval-time.time()%interval  
+                print_ts("Sleeping until %s (%s seconds)..."%((time.ctime(time.time()+time_remaining)), time_remaining))  
+                time.sleep(time_remaining)  
+                print_ts("Starting command.")  
+                # execute the command  
+                status = os.system(command)  
+                print_ts("-"*100)  
+                print_ts("Command status = %s."%status)  
+            except Exception, e:  
+                print e  
+
 
 if __name__ == '__main__':
     filename = "weather.db"
-    begin = None
-    end = None
-    detla = None
-    quiet = False
-    only_print = False
-    # try:
-    #     opts, args = getopt.getopt(sys.argv[1:],'f:b:e:m:hqp')
-    #     for opt, val in opts:
-    #         if opt == '-f':
-    #             filename=val
-    #         elif opt == '-b':
-    #             begin = int(val)
-    #         elif opt == '-e':
-    #             end = int(val)
-    #         elif opt == '-m':
-    #             detla = int(val)
-    #         elif opt == '-q':
-    #             quiet = True
-    #         elif opt == '-p':
-    #             only_print = True
-    #         elif opt == '-h':
-    #             print "Usage:[-f filename],[-b begin_runid],[-e end_runid]"
-    #             sys.exit()
-    # except getopt.GetoptError:
-    #     print "Usage:[-f filename],[-b begin_runid],[-e end_runid],[-d missing_detla]"
-        # print help information and exit:
-    fetcher = weatherFetcher(filename=filename,quiet=quiet)
-    if detla == None:
-        fetcher.fetch()
-    else:
-        fetcher.make_up(detla=detla,only_print=only_print)
+    fetcher = weatherFetcher(filename=filename)
+    fetcher.fetch()
