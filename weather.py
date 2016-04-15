@@ -2,7 +2,7 @@
 # @Author: Lich_Amnesia  
 # @Email: alwaysxiaop@gmail.com
 # @Date:   2016-04-15 19:02:42
-# @Last Modified time: 2016-04-16 02:04:13
+# @Last Modified time: 2016-04-16 02:11:02
 # @FileName: weather.py
 
 import urllib2, urllib, json
@@ -12,7 +12,7 @@ import re
 import datetime
 import time
 import getopt, sys
-
+import os
 class weatherFetcher(object):
     """docstring for weatherFetcher"""
     def __init__(self, arg=None,filename=None,quiet=False):
@@ -51,7 +51,7 @@ class weatherFetcher(object):
     def fetch_html(self,url):
         while True:
             success = True
-            print("fetch ok {0}".format(time.localtime()))
+            print("[{0}] fetch ok ".format(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))
             try:
                 resp = self.s.get(url,timeout=5)
             except Exception, e:
@@ -120,22 +120,21 @@ class weatherFetcher(object):
     def print_ts(self, message):  
         print "[%s] %s"%(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), message)  
 
-    def run(self, interval, command):  
-        self.print_ts("-"*100)  
-        self.print_ts("Command %s"%command)  
+    def run(self, interval):  
+        self.print_ts("-"*100)   
         self.print_ts("Starting every %s seconds."%interval)  
         self.print_ts("-"*100)  
         while True:  
             try:  
                 # sleep for the remaining seconds of interval  
                 time_remaining = interval-time.time()%interval  
-                print_ts("Sleeping until %s (%s seconds)..."%((time.ctime(time.time()+time_remaining)), time_remaining))  
+                self.print_ts("Sleeping until %s (%s seconds)..."%((time.ctime(time.time()+time_remaining)), time_remaining))  
                 time.sleep(time_remaining)  
-                print_ts("Starting command.")  
+                self.print_ts("Starting command.")  
                 # execute the command  
-                status = os.system(command)  
-                print_ts("-"*100)  
-                print_ts("Command status = %s."%status)  
+                self.fetch()
+                self.print_ts("-"*100)  
+
             except Exception, e:  
                 print e  
 
@@ -143,4 +142,6 @@ class weatherFetcher(object):
 if __name__ == '__main__':
     filename = "weather.db"
     fetcher = weatherFetcher(filename=filename)
-    fetcher.fetch()
+    interval = 3600 * 24
+    fetcher.run(interval) 
+    # fetcher.fetch()
