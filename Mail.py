@@ -2,7 +2,7 @@
 # @Author: Lich_Amnesia  
 # @Email: alwaysxiaop@gmail.com
 # @Date:   2016-04-19 22:20:19
-# @Last Modified time: 2016-04-19 23:59:34
+# @Last Modified time: 2016-04-20 00:37:44
 # @FileName: Mail.py
 
 # -*- coding: utf-8 -*-
@@ -42,22 +42,25 @@ def getText(filename):
     cu = con.cursor()
     cu.execute("SELECT * from WeatherBoulder ORDER by RunID DESC LIMIT 1")
     bk = cu.fetchone()
-    print bk,type(bk)
-    return bk[2]
+    # print bk,type(bk)
+    Text = '''       
+        Today is {0}. Today's temperature is 10°C. And weather is {1}. Also the wind is {2}mph and the humidity is {3}%.
+    '''.format(bk[5],bk[2],bk[3],bk[4])
+    print Text
+    return Text
 
 if __name__ == '__main__':
     stream = file('Mail.yaml', 'r')    
     dic =  yaml.load(stream)
-    print dic
     mailto_list=["alwaysxiaop@gmail.com","chen3221@126.com"] 
     mail_host=dic['mail_host'] #设置服务器
     mail_user=dic['mail_user']   #用户名
     mail_pass=dic['mail_pass']  #口令 
     mail_postfix=dic['mail_postfix']  #发件箱的后缀
-    
+
     mail_file = "weather.db"
     mail_text = getText(mail_file)
-
+    # exit()
     if sendMail(mailto_list,"BoulderNews",mail_text):  
         print "发送成功"  
     else:  
