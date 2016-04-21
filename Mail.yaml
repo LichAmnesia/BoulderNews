@@ -1,4 +1,0 @@
-mail_host: smtp.z.com  #设置服务器
-mail_user: zzzzzz    #用户名
-mail_pass: "zzzzz"   #口令 
-mail_postfix: z.com  #发件箱的后缀
