@@ -2,7 +2,7 @@
 # @Author: Lich_Amnesia
 # @Email: alwaysxiaop@gmail.com
 # @Date:   2016-04-15 19:02:42
-# @Last Modified time: 2016-04-22 20:04:47
+# @Last Modified time: 2016-04-22 20:10:31
 # @FileName: weather.py
 
 import urllib2
@@ -156,5 +156,5 @@ class weatherFetcher(object):
 if __name__ == '__main__':
     filename = "weather.db"
     fetcher = weatherFetcher(filename=filename)
-    interval = 20
+    interval = 3600
     fetcher.run(interval)
