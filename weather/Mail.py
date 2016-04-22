@@ -2,7 +2,7 @@
 # @Author: Lich_Amnesia
 # @Email: alwaysxiaop@gmail.com
 # @Date:   2016-04-19 22:20:19
-# @Last Modified time: 2016-04-21 13:51:02
+# @Last Modified time: 2016-04-22 20:06:37
 # @FileName: Mail.py
 
 # -*- coding: utf-8 -*-
@@ -14,7 +14,7 @@ import smtplib
 from email.mime.text import MIMEText
 import sqlite3
 import yaml
-
+import time
 
 class weatherMail(object):
     """docstring for weatherMail"""
@@ -40,7 +40,7 @@ class weatherMail(object):
         self.arg = arg
 
     def sendMail(self, to_list, sub, content):  # to_list：收件人；sub：主题；content：邮件内容
-        me = "Lich_Amnesia" + "<" + self.mail_user + "@" + \
+        me = "BoulderWetherReport" + "<" + self.mail_user + "@" + \
             self.mail_postfix + ">"  # 这里的hello可以任意设置，收到信后，将按照设置显示
         # 创建一个实例，这里设置为html格式邮件
         msg = MIMEText(content, _subtype='html', _charset='utf-8')
@@ -65,9 +65,14 @@ class weatherMail(object):
         bk = cu.fetchone()
         # print bk,type(bk)
         Text = '''       
-            Today is {0}. Today's temperature is 10°C. And weather is {1}. Also the wind is {2}mph and the humidity is {3}%.
-        '''.format(bk[5], bk[2], bk[3], bk[4])
-        print Text
+
+
+            The weather is updated at {0}. Now the temperature is about {1}°C.
+            Today's temperature around {2}/{3}°C. And weather will be {4}. 
+            Also the wind is {5}mph and the humidity is {6}%.
+        '''.format(bk[7], bk[1], bk[2], bk[3], bk[4], bk[5], bk[6])
+        print('[{0}] The text is:\n{1}'.format(time.strftime(
+                    "%Y-%m-%d %H:%M:%S", time.localtime()),Text))
         return Text
 
     def main(self):
@@ -82,12 +87,14 @@ class weatherMail(object):
         # mail_file = "weather.db"
 
         mail_text = self.getText(self.mail_file)
-        # exit()
-        if self.sendMail(self.mailto_list, "BoulderNews", mail_text):
-            print "发送成功"
-        else:
-            print "发送失败"
 
+        if self.sendMail(self.mailto_list, "BoulderNews", mail_text):
+            print('[{0}] 发送成功'.format(time.strftime(
+                    "%Y-%m-%d %H:%M:%S", time.localtime())))
+        else:
+            print('[{0}] 发送失败'.format(time.strftime(
+                    "%Y-%m-%d %H:%M:%S", time.localtime())))
+ 
 if __name__ == '__main__':
     mail = weatherMail()
     mail.main()

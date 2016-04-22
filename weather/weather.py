@@ -2,7 +2,7 @@
 # @Author: Lich_Amnesia
 # @Email: alwaysxiaop@gmail.com
 # @Date:   2016-04-15 19:02:42
-# @Last Modified time: 2016-04-22 19:40:50
+# @Last Modified time: 2016-04-22 20:04:47
 # @FileName: weather.py
 
 import urllib2
@@ -39,7 +39,7 @@ class weatherFetcher(object):
             print "create table WeatherBoulder successfully"
         # requests
         self.s = requests.Session()
-        self.fileds = ['RunID', 'Temperature',
+        self.fileds = ['RunID', 'Temperature', 'TemperatureH', 'TemperatureL',
                        'Description', 'Wind', 'Humidity', 'Time']
         self.mail = Mail.weatherMail()
 
@@ -47,6 +47,8 @@ class weatherFetcher(object):
         cu = self.con.cursor()
         cu.execute('''CREATE TABLE [WeatherBoulder] (
               [RunID] integer NOT NULL ON CONFLICT REPLACE PRIMARY KEY,
+              [Temperature] integer,
+              [TemperatureH] integer,
               [TemperatureL] integer,
               [Description] varchar(40),
               [Wind] integer,
@@ -68,7 +70,8 @@ class weatherFetcher(object):
                 success = False
                 time.sleep(5)
             else:
-                print "status code=%s" % resp.status_code
+                print("[{0}] status code: {1}".format(time.strftime(
+                    "%Y-%m-%d %H:%M:%S", time.localtime()), resp.status_code))
                 if resp.status_code != 200:
                     success = False
                     time.sleep(5)
@@ -91,15 +94,16 @@ class weatherFetcher(object):
         line = {
             'RunID': self.getRunID(),
             'Temperature': self.cacl(data['query']['results']['channel']['item']['condition']['temp']),
-            'Description': data['query']['results']['channel']['item']['condition']['text'].encode('utf-8'),
+            'TemperatureH': self.cacl(data['query']['results']['channel']['item']['forecast'][0]['high']),
+            'TemperatureL': self.cacl(data['query']['results']['channel']['item']['forecast'][0]['low']),
+            'Description': data['query']['results']['channel']['item']['forecast'][0]['text'].encode('utf-8'),
             'Wind': int(data['query']['results']['channel']['wind']['speed']),
             'Humidity': int(data['query']['results']['channel']['atmosphere']['humidity']),
             'Time': data['query']['results']['channel']['item']['condition']['date'].encode('utf-8'),
         }
 
-        print "got %d status" % len(line)
-
-        print('RunID = {0}'.format(line['RunID']))
+        print('[{2}] RunID = {0}. Got {1} fields.'.format(line['RunID'], len(line), time.strftime(
+            "%Y-%m-%d %H:%M:%S", time.localtime())))
         self.insert(line)
         return line
 
@@ -122,7 +126,7 @@ class weatherFetcher(object):
             s.append(status[key])
         status_array.append(s)
         cu.executemany(
-            'INSERT OR REPLACE INTO WeatherBoulder Values(?,?,?,?,?,?)', status_array)
+            'INSERT OR REPLACE INTO WeatherBoulder Values(?,?,?,?,?,?,?,?)', status_array)
         self.con.commit()
 
     def print_ts(self, message):
@@ -145,7 +149,6 @@ class weatherFetcher(object):
                 # 发送邮件
                 self.mail.main()
                 self.print_ts("-" * 100)
-
             except Exception, e:
                 print e
 
@@ -153,5 +156,5 @@ class weatherFetcher(object):
 if __name__ == '__main__':
     filename = "weather.db"
     fetcher = weatherFetcher(filename=filename)
-    interval = 10
+    interval = 20
     fetcher.run(interval)
