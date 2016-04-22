@@ -2,7 +2,7 @@
 # @Author: Lich_Amnesia
 # @Email: alwaysxiaop@gmail.com
 # @Date:   2016-04-15 19:02:42
-# @Last Modified time: 2016-04-22 19:38:10
+# @Last Modified time: 2016-04-22 19:40:50
 # @FileName: weather.py
 
 import urllib2
@@ -96,7 +96,7 @@ class weatherFetcher(object):
             'Humidity': int(data['query']['results']['channel']['atmosphere']['humidity']),
             'Time': data['query']['results']['channel']['item']['condition']['date'].encode('utf-8'),
         }
-        
+
         print "got %d status" % len(line)
 
         print('RunID = {0}'.format(line['RunID']))
@@ -108,7 +108,7 @@ class weatherFetcher(object):
         cu = self.con.cursor()
         cu.execute("SELECT RunID from WeatherBoulder ORDER by RunID DESC LIMIT 1")
         bk = cu.fetchone()
-        if len(bk) == 0:
+        if bk == None or len(bk) == 0:
             RunID = 1
         else:
             RunID = bk[0] + 1
