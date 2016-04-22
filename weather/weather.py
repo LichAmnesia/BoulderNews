@@ -2,7 +2,7 @@
 # @Author: Lich_Amnesia
 # @Email: alwaysxiaop@gmail.com
 # @Date:   2016-04-15 19:02:42
-# @Last Modified time: 2016-04-21 13:51:42
+# @Last Modified time: 2016-04-22 19:38:10
 # @FileName: weather.py
 
 import urllib2
@@ -96,7 +96,8 @@ class weatherFetcher(object):
             'Humidity': int(data['query']['results']['channel']['atmosphere']['humidity']),
             'Time': data['query']['results']['channel']['item']['condition']['date'].encode('utf-8'),
         }
-        # print "got %d status" % len(line)
+        
+        print "got %d status" % len(line)
 
         print('RunID = {0}'.format(line['RunID']))
         self.insert(line)
