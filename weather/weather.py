@@ -2,7 +2,7 @@
 # @Author: Lich_Amnesia
 # @Email: alwaysxiaop@gmail.com
 # @Date:   2016-04-15 19:02:42
-# @Last Modified time: 2016-04-22 20:10:31
+# @Last Modified time: 2016-04-24 20:25:11
 # @FileName: weather.py
 
 import urllib2
@@ -112,7 +112,7 @@ class weatherFetcher(object):
         cu = self.con.cursor()
         cu.execute("SELECT RunID from WeatherBoulder ORDER by RunID DESC LIMIT 1")
         bk = cu.fetchone()
-        if bk == None or len(bk) == 0:
+        if bk is None or len(bk) == 0:
             RunID = 1
         else:
             RunID = bk[0] + 1
@@ -156,5 +156,5 @@ class weatherFetcher(object):
 if __name__ == '__main__':
     filename = "weather.db"
     fetcher = weatherFetcher(filename=filename)
-    interval = 3600
+    interval = 20
     fetcher.run(interval)

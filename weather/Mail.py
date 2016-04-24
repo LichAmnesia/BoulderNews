@@ -2,7 +2,7 @@
 # @Author: Lich_Amnesia
 # @Email: alwaysxiaop@gmail.com
 # @Date:   2016-04-19 22:20:19
-# @Last Modified time: 2016-04-22 20:06:37
+# @Last Modified time: 2016-04-24 20:24:15
 # @FileName: Mail.py
 
 # -*- coding: utf-8 -*-
@@ -16,6 +16,7 @@ import sqlite3
 import yaml
 import time
 
+
 class weatherMail(object):
     """docstring for weatherMail"""
 
@@ -25,8 +26,8 @@ class weatherMail(object):
 
         self.stream = file('Mail.yaml', 'r')
         self.dic = yaml.load(self.stream)
-        if filename == None:
-            self.mailto_list = ["alwaysxiaop@gmail.com", "chen3221@126.com"]
+        if filename is None:
+            self.mailto_list = ["chen3221@126.com"]
         else:
             # 修改为可配置的文件
             self.mailto_list = [""]
@@ -64,15 +65,13 @@ class weatherMail(object):
         cu.execute("SELECT * from WeatherBoulder ORDER by RunID DESC LIMIT 1")
         bk = cu.fetchone()
         # print bk,type(bk)
-        Text = '''       
-
-
+        Text = '''
             The weather is updated at {0}. Now the temperature is about {1}°C.
-            Today's temperature around {2}/{3}°C. And weather will be {4}. 
+            Today's temperature around {2}/{3}°C. And weather will be {4}.
             Also the wind is {5}mph and the humidity is {6}%.
         '''.format(bk[7], bk[1], bk[2], bk[3], bk[4], bk[5], bk[6])
         print('[{0}] The text is:\n{1}'.format(time.strftime(
-                    "%Y-%m-%d %H:%M:%S", time.localtime()),Text))
+            "%Y-%m-%d %H:%M:%S", time.localtime()), Text))
         return Text
 
     def main(self):
@@ -87,14 +86,20 @@ class weatherMail(object):
         # mail_file = "weather.db"
 
         mail_text = self.getText(self.mail_file)
+        while True:
+            success = False
+            if self.sendMail(self.mailto_list, "BoulderNews", mail_text):
+                success = True
+                print('[{0}] Send Success'.format(time.strftime(
+                    "%Y-%m-%d %H:%M:%S", time.localtime())))
+            else:
+                success = False
+                print('[{0}] Send Error'.format(time.strftime(
+                    "%Y-%m-%d %H:%M:%S", time.localtime())))
+                time.sleep(5)
+            if success:
+                break
 
-        if self.sendMail(self.mailto_list, "BoulderNews", mail_text):
-            print('[{0}] 发送成功'.format(time.strftime(
-                    "%Y-%m-%d %H:%M:%S", time.localtime())))
-        else:
-            print('[{0}] 发送失败'.format(time.strftime(
-                    "%Y-%m-%d %H:%M:%S", time.localtime())))
- 
 if __name__ == '__main__':
     mail = weatherMail()
     mail.main()
