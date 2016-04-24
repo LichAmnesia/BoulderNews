@@ -2,7 +2,7 @@
 # @Author: Lich_Amnesia
 # @Email: alwaysxiaop@gmail.com
 # @Date:   2016-04-19 22:20:19
-# @Last Modified time: 2016-04-24 20:24:15
+# @Last Modified time: 2016-04-24 20:31:43
 # @FileName: Mail.py
 
 # -*- coding: utf-8 -*-
@@ -95,6 +95,8 @@ class weatherMail(object):
             else:
                 success = False
                 print('[{0}] Send Error'.format(time.strftime(
+                    "%Y-%m-%d %H:%M:%S", time.localtime())))
+                print('[{0}] It will sleep 5 seconds for next try.'.format(time.strftime(
                     "%Y-%m-%d %H:%M:%S", time.localtime())))
                 time.sleep(5)
             if success:
