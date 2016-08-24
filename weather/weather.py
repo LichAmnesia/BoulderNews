@@ -2,7 +2,7 @@
 # @Author: Lich_Amnesia
 # @Email: alwaysxiaop@gmail.com
 # @Date:   2016-04-15 19:02:42
-# @Last Modified time: 2016-04-24 20:25:11
+# @Last Modified time: 2016-08-23 22:41:59
 # @FileName: weather.py
 
 import urllib2
@@ -147,7 +147,7 @@ class weatherFetcher(object):
                 # execute the command
                 self.fetch()
                 # 发送邮件
-                self.mail.main()
+                # self.mail.main()
                 self.print_ts("-" * 100)
             except Exception, e:
                 print e
@@ -156,5 +156,5 @@ class weatherFetcher(object):
 if __name__ == '__main__':
     filename = "weather.db"
     fetcher = weatherFetcher(filename=filename)
-    interval = 20
+    interval = 3600
     fetcher.run(interval)
