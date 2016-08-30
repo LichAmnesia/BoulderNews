@@ -2,3 +2,4 @@ statistics.db
 weather.db
 *.pyc
 weather/Mail.yaml
+*.xlsx
