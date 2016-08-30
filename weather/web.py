@@ -2,7 +2,7 @@
 # @Author: Lich_Amnesia
 # @Email: alwaysxiaop@gmail.com
 # @Date:   2016-08-30 10:06:19
-# @Last Modified time: 2016-08-30 10:07:11
+# @Last Modified time: 2016-08-30 10:10:03
 # @FileName: web.py
 import tornado.ioloop
 import tornado.web
@@ -20,5 +20,5 @@ def make_app():
 
 if __name__ == "__main__":
     app = make_app()
-    app.listen(80)
+    app.listen(8000)
     tornado.ioloop.IOLoop.current().start()
