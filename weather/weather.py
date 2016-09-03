@@ -2,7 +2,7 @@
 # @Author: Lich_Amnesia
 # @Email: alwaysxiaop@gmail.com
 # @Date:   2016-04-15 19:02:42
-# @Last Modified time: 2016-08-23 22:41:59
+# @Last Modified time: 2016-09-03 17:41:34
 # @FileName: weather.py
 
 import urllib2
@@ -64,7 +64,7 @@ class weatherFetcher(object):
             print("[{0}] fetch ok ".format(time.strftime(
                 "%Y-%m-%d %H:%M:%S", time.localtime())))
             try:
-                resp = self.s.get(url, timeout=5)
+                resp = self.s.get(url, timeout=5, verify=False)
             except Exception, e:
                 print e
                 success = False
